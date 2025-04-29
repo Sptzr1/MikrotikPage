@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Mikrotik{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h2 mb-4">Dashboard Mikrotik</h1>
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    {% if warning %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ warning }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    
+    <!-- Tarjetas de resumen -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Usuarios Hotspot</h5>
+                    <p class="card-text display-4">{{ hotspot_users|length }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Interfaces</h5>
+                    <p class="card-text display-4">{{ interfaces|length }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Enlaces Activos</h5>
+                    <p class="card-text display-4">{{ active_links|length }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de usuarios hotspot -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Usuarios Hotspot</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Contraseña</th>
+                            <th>Perfil</th>
+                            <th>Límite de tiempo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in hotspot_users %}
+                        <tr>
+                            <td>{{ user.name }}</td>
+                            <td>{{ user.password }}</td>
+                            <td>{{ user.profile }}</td>
+                            <td>{{ user.limit_uptime }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de interfaces -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Interfaces</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Tipo</th>
+                            <th>Estado</th>
+                            <th>MTU</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for interface in interfaces %}
+                        <tr>
+                            <td>{{ interface.name }}</td>
+                            <td>{{ interface.type }}</td>
+                            <td>
+                                <span class="badge {% if interface.running %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ interface.running|yesno:"Activo,Inactivo" }}
+                                </span>
+                            </td>
+                            <td>{{ interface.mtu }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de enlaces activos -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Enlaces Activos</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Dirección IP</th>
+                            <th>MAC</th>
+                            <th>Tiempo de conexión</th>
+                            <th>Estado de Pago</th>
+                            <th>Próximo Pago</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for link in active_links %}
+                        <tr>
+                            <td>{{ link.user }}</td>
+                            <td>{{ link.address }}</td>
+                            <td>{{ link.mac_address }}</td>
+                            <td>{{ link.uptime }}</td>
+                            <td>
+                                <span class="badge {% if link.payment_status %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ link.payment_status|yesno:"Al día,Atrasado" }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if link.next_payment %}
+                                    {{ link.next_payment|date:"d/m/Y" }}
+                                {% else %}
+                                    No registrado
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'disconnect_user' link.user %}" class="btn btn-sm {% if link.payment_status %}btn-danger{% else %}btn-secondary{% endif %}">
+                                        <i class="bi bi-power"></i> {% if link.payment_status %}Desconectar{% else %}Conectar{% endif %}
+                                    </a>
+                                    <a href="{% url 'toggle_auto_disconnect' link.user %}" class="btn btn-sm {% if link.auto_disconnect %}btn-warning{% else %}btn-secondary{% endif %}">
+                                        <i class="bi bi-shield-check"></i> Auto
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
