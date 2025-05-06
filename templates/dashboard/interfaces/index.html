@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Interfaces - Dashboard Mikrotik{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h2 mb-4">Interfaces</h1>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Interfaces</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Tipo</th>
+                            <th>Estado</th>
+                            <th>MTU</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for interface in interfaces %}
+                        <tr>
+                            <td>{{ interface.name }}</td>
+                            <td>{{ interface.type }}</td>
+                            <td>
+                                <span class="badge {% if interface.running %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ interface.running|yesno:"Activo,Inactivo" }}
+                                </span>
+                            </td>
+                            <td>{{ interface.mtu }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Conexiones PPP - Dashboard Mikrotik{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h2 mb-4">Conexiones PPP</h1>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Lista de conexiones PPP (MikroTik)</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Dirección IP</th>
+                            <th>MAC</th>
+                            <th>Tiempo de conexión</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ppp in ppp_sessions %}
+                        <tr>
+                            <td>{{ ppp.name }}</td>
+                            <td>{{ ppp.address }}</td>
+                            <td>{{ ppp.mac_address }}</td>
+                            <td>{{ ppp.uptime }}</td>
+                            <td>
+                                <span class="badge {% if ppp.disabled %}bg-danger{% else %}bg-success{% endif %}">
+                                    {% if ppp.disabled %} Desconectado {% else %} Conectado {% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'disconnect_ppp' ppp.name %}" class="btn btn-sm btn-warning">
+                                        <i class="bi bi-x-circle"></i> Desconectar
+                                    </a>
+                                    <a href="{% url 'delete_ppp' ppp.name %}" class="btn btn-sm btn-danger">
+                                        <i class="bi bi-trash"></i> Eliminar
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

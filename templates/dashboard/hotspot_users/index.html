@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Usuarios Hotspot - Dashboard Mikrotik{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h2 mb-4">Usuarios Hotspot</h1>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Usuarios Hotspot</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Contraseña</th>
+                            <th>Perfil</th>
+                            <th>Límite de tiempo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in hotspot_users %}
+                        <tr>
+                            <td>{{ user.name }}</td>
+                            <td>{{ user.password }}</td>
+                            <td>{{ user.profile }}</td>
+                            <td>{{ user.limit_uptime }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

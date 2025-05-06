@@ -39,23 +39,33 @@
                 <div class="position-sticky pt-3">
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link active" href="{% url 'index' %}">
-                                <i class="bi bi-house-door"></i> Dashboard
+                            <a class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}" href="{% url 'index' %}">
+                                <i class="bi bi-house-door"></i> Inicio
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'hotspot_users' %}active{% endif %}" href="{% url 'hotspot_users' %}">
                                 <i class="bi bi-people"></i> Usuarios Hotspot
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'interfaces' %}active{% endif %}" href="{% url 'interfaces' %}">
                                 <i class="bi bi-diagram-3"></i> Interfaces
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'active_links' %}active{% endif %}" href="{% url 'active_links' %}">
                                 <i class="bi bi-link-45deg"></i> Enlaces Activos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'queues' %}active{% endif %}" href="{% url 'queues' %}">
+                                <i class="bi bi-list-task"></i> Queues
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'ppp_sessions' %}active{% endif %}" href="{% url 'ppp_sessions' %}">
+                                <i class="bi bi-wifi"></i> Conexiones PPP
                             </a>
                         </li>
                     </ul>
@@ -71,7 +81,6 @@
                 {% endif %}
                 
                 {% block content %}
-                
                 {% endblock %}
             </main>
         </div>
@@ -81,4 +90,4 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     {% block extra_js %}{% endblock %}
 </body>
-</html> 
+</html>
