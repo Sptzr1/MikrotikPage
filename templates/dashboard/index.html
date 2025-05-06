@@ -173,5 +173,106 @@
             </div>
         </div>
     </div>
+
+    <!-- Tabla de colas de MikroTik -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Lista de Queues (MikroTik)</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Dirección IP Objetivo</th>
+                        <th>Límite Máximo</th>
+                        <th>Uso Actual</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for queue in queues %}
+                    <tr>
+                        <td>{{ queue.name }}</td>
+                        <td>{{ queue.target }}</td>
+                        <td>{{ queue.max_limit }}</td>
+                        <td>{{ queue.rate }}</td>
+                        <td>
+                            <span class="badge {% if queue.disabled %}bg-danger{% else %}bg-success{% endif %}">
+                                {% if queue.disabled %} Desactivado {% else %} Activo {% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'disable_queue' queue.name %}" class="btn btn-sm btn-warning">
+                                    <i class="bi bi-x-circle"></i> Desactivar
+                                </a>
+                                <a href="{% url 'enable_queue' queue.name %}" class="btn btn-sm btn-success">
+                                    <i class="bi bi-check-circle"></i> Activar
+                                </a>
+                                <a href="{% url 'delete_queue' queue.name %}" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i> Eliminar
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Tabla de conexiones PPP en MikroTik -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Lista de conexiones PPP (MikroTik)</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Dirección IP</th>
+                        <th>MAC</th>
+                        <th>Tiempo de conexión</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ppp in ppp_sessions %}
+                    <tr>
+                        <td>{{ ppp.name }}</td>
+                        <td>{{ ppp.address }}</td>
+                        <td>{{ ppp.mac_address }}</td>
+                        <td>{{ ppp.uptime }}</td>
+                        <td>
+                            <span class="badge {% if ppp.disabled %}bg-danger{% else %}bg-success{% endif %}">
+                                {% if ppp.disabled %} Desconectado {% else %} Conectado {% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'disconnect_ppp' ppp.name %}" class="btn btn-sm btn-warning">
+                                    <i class="bi bi-x-circle"></i> Desconectar
+                                </a>
+                                <a href="{% url 'delete_ppp' ppp.name %}" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i> Eliminar
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
 </div>
 {% endblock %} 

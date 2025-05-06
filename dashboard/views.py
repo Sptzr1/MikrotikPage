@@ -8,6 +8,7 @@ from .models import UserPayment
 from django.contrib import messages
 
 def get_dummy_data():
+
     """Genera datos de prueba para cuando no hay conexión al Mikrotik"""
     # Datos dummy para usuarios hotspot
     hotspot_users = [
@@ -41,6 +42,108 @@ def get_dummy_data():
     
     return hotspot_users, interfaces, active_links
 
+def delete_queue(request, queue_name):
+    """Elimina una Queue en MikroTik"""
+    api = get_mikrotik_connection()
+    if api:
+        try:
+            queue_id = next(
+                (q['.id'] for q in api.path('/queue/simple').select() if q.get('name') == queue_name), None
+            )
+            if queue_id:
+                api.path('/queue/simple').remove(queue_id)  # 🔹 Elimina la queue
+                messages.success(request, f'Queue {queue_name} eliminada correctamente')
+            else:
+                messages.error(request, f'No se encontró la Queue {queue_name}')
+        except Exception as e:
+            messages.error(request, f'Error al eliminar la queue: {str(e)}')
+        api.close()
+    return redirect('index')
+    
+def enable_queue(request, queue_name):
+    """Activa una Queue en MikroTik"""
+    api = get_mikrotik_connection()
+    if api:
+        try:
+            queue_id = next(
+                (q['.id'] for q in api.path('/queue/simple').select() if q.get('name') == queue_name), None
+            )
+            if queue_id:
+                api.path('/queue/simple').update(**{'.id': queue_id, 'disabled': 'no'})  # 🔹 Activa la queue
+                messages.success(request, f'Queue {queue_name} activada correctamente')
+            else:
+                messages.error(request, f'No se encontró la Queue {queue_name}')
+        except Exception as e:
+            messages.error(request, f'Error al activar la queue: {str(e)}')
+        api.close()
+    return redirect('index')
+
+def disable_queue(request, queue_name):
+    """Desactiva una Queue en MikroTik"""
+    api = get_mikrotik_connection()
+    if api:
+        try:
+            queue_id = list(api.path('/queue/simple').select())[0]['.id']  # Encuentra el ID de la queue
+            # Desactiva la queue
+            api.path('/queue/simple').update(**{'.id': queue_id, 'disabled': 'yes'})
+            messages.success(request, f'Queue {queue_name} desactivada correctamente')
+        except Exception as e:
+            messages.error(request, f'Error al desactivar la queue: {str(e)}')
+        api.close()
+    return redirect('index')
+
+def list_ppp_sessions(request):
+    """Obtiene todas las sesiones PPP activas"""
+    context = {}
+    api = get_mikrotik_connection()
+    
+    ppp_sessions = []
+    if api:
+        try:
+            ppp_sessions = list(api.path('/ppp/active').select())
+            for session in ppp_sessions:
+                if 'mac-address' in session:
+                    session['mac_address'] = session.pop('mac-address')
+        except Exception as e:
+            context['error'] = str(e)
+        api.close()
+
+    context['ppp_sessions'] = ppp_sessions
+    return render(request, 'dashboard/index.html', context)
+
+def disconnect_ppp(request, ppp_name):
+    """Desconecta una sesión PPP activa"""
+    api = get_mikrotik_connection()
+    if api:
+        try:
+            ppp_id = next((s['.id'] for s in api.path('/ppp/active').select() if s.get('name') == ppp_name), None)
+            if ppp_id:
+                api.path('/ppp/active').remove(ppp_id)
+                messages.success(request, f'Sesión PPP {ppp_name} desconectada correctamente')
+            else:
+                messages.error(request, f'No se encontró la sesión PPP {ppp_name}')
+        except Exception as e:
+            messages.error(request, f'Error al desconectar la sesión PPP: {str(e)}')
+        api.close()
+    return redirect('list_ppp_sessions')
+
+def delete_ppp(request, ppp_name):
+    """Elimina un usuario PPP de MikroTik"""
+    api = get_mikrotik_connection()
+    if api:
+        try:
+            ppp_secret_id = next((s['.id'] for s in api.path('/ppp/secret').select() if s.get('name') == ppp_name), None)
+            if ppp_secret_id:
+                api.path('/ppp/secret').remove(ppp_secret_id)
+                messages.success(request, f'Usuario PPP {ppp_name} eliminado correctamente')
+            else:
+                messages.error(request, f'No se encontró el usuario PPP {ppp_name}')
+        except Exception as e:
+            messages.error(request, f'Error al eliminar el usuario PPP: {str(e)}')
+        api.close()
+    return redirect('list_ppp_sessions')
+
+
 def get_mikrotik_connection():
     try:
         api = connect(
@@ -71,6 +174,8 @@ def index(request):
     context = {}
     api = get_mikrotik_connection()
     using_dummy_data = False
+    # 🔹 Asegura que `queues` está inicializado
+    queues = []
     
     if api:
         try:
@@ -83,7 +188,12 @@ def index(request):
             
             # Obtener interfaces
             interfaces = list(api.path('/interface').select())
-            
+
+            #Obtener Queues
+            queues = list(api.path('/queue/simple/').select())
+            for queue in queues:
+                if 'max-limit' in queue:
+                    queue['max_limit'] = queue.pop('max-limit')  # 🔄 Renombramos la clave
             # Obtener enlaces activos
             active_links = list(api.path('/ip/hotspot/active').select())
             # Convertir los nombres de las claves
@@ -110,7 +220,8 @@ def index(request):
             context.update({
                 'hotspot_users': hotspot_users,
                 'interfaces': interfaces,
-                'active_links': active_links
+                'queues': queues,
+                'active_links': active_links,
             })
             
             api.close()
@@ -132,6 +243,7 @@ def index(request):
             'hotspot_users': hotspot_users,
             'interfaces': interfaces,
             'active_links': active_links,
+            'queues': queues,
             'warning': '⚠️ Se están utilizando datos de prueba. No se pudo conectar al Mikrotik.'
         })
     
