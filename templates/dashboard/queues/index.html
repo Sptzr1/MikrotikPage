@@ -5,7 +5,29 @@
 {% block content %}
 <div class="container-fluid">
     <h1 class="h2 mb-4">Lista de Queues</h1>
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+        {% endif %}
     
+        {% if warning %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            {{ warning }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endif %}
+        
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endif %}
     <div class="card">
         <div class="card-header">
             <h5 class="card-title mb-0">Lista de Queues (MikroTik)</h5>

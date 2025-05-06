@@ -136,3 +136,9 @@ MIKROTIK_CONFIG = {
     'password': os.getenv('MIKROTIK_PASSWORD'),
     'port': int(os.getenv('MIKROTIK_PORT', 8728)),
 }
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'mikrotik-cache',
+    }
+}
