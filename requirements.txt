@@ -1,0 +1,7 @@
+Django>=4.2,<5.0
+python-dotenv>=1.0.0
+routeros-api>=0.16.0
+# Si usas psycopg2 para PostgreSQL, descomenta la siguiente línea:
+# psycopg2-binary>=2.9.0
+# Si usas django-environ para gestionar variables de entorno, descomenta:
+# django-environ>=0.10.0
